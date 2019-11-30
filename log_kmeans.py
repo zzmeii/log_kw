@@ -39,9 +39,9 @@ class Dot:
                 return False
         return True
     
-    def __add__(self, other) -> int:
+    def __add__(self, other) -> float:
         """
-        Перегрезка сложения
+        Перегрузка сложения
         
         :param other:
         :return:
@@ -94,7 +94,7 @@ class SpecialPoint:
         return self.spec_points[item]
 
 
-def v_sum(all_dots: list, special_dots: SpecialPoint) -> int:
+def v_sum(all_dots: list, special_dots: SpecialPoint) -> float:
     """
     
     :type all_dots: list
