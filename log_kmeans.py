@@ -120,24 +120,24 @@ def new_obj(all_dots: list, first: SpecialPoint, sec: SpecialPoint, min_sum_now:
     """
     sp_len = len(first)
     test_list = []
-    for i in range(sp_len ** 2):
-        conf = bin(i).replace('0b', '').zfill(sp_len)
-        for k in range(sp_len):
-            if conf[k] == '1':
-                test_list.append(sec[k])
-            else:
-                test_list.append(first[k])
-        new_sum = v_sum(all_dots, SpecialPoint(test_list))
-        if new_sum < min_sum_now:
-            min_sum_now = new_sum
+    
+    for k in range(sp_len):
+        if random.random() < 0.5:
+            test_list.append(sec[k])
+        else:
+            test_list.append(first[k])
+    new_sum = v_sum(all_dots, SpecialPoint(test_list))
+    if new_sum < min_sum_now:
+        min_sum_now = new_sum
     return min_sum_now, test_list
 
 
-def gen_rand_obj(dots: list):
+def gen_rand_obj(dots: list, k_amount) -> SpecialPoint:
     """
     Генерирует объект на основе трех случайных точек
-    TODO сделать универсальной для любого кол-ва точек
-    :param dots:
+    DONE сделать универсальной для любого кол-ва точек
+    :param k_amount: Необходимое количество специальных точек
+    :param dots: Все точки
     :return:
     """
     first = []
@@ -145,8 +145,8 @@ def gen_rand_obj(dots: list):
         point = random.randint(0, len(dots) - 1)
         if point not in first:
             first.append(point)
-        if len(first) == 3:
-            return SpecialPoint([dots[first[0]], dots[first[1]], dots[first[2]]])
+        if len(first) == k_amount:
+            return SpecialPoint([dots[i] for i in first])
 
 
 if __name__ == '__main__':
@@ -159,10 +159,10 @@ if __name__ == '__main__':
     all_dots = []
     for k in temp:
         all_dots.append(Dot(k, True))  # формирование списка исходных данных
-    first_s_point = gen_rand_obj(all_dots)  # Генерация первой тройки объектов
+    first_s_point = gen_rand_obj(all_dots, 3)  # Генерация первой тройки объектов
     pr = v_sum(all_dots, first_s_point)
     while True:  # основной цикл
-        sec_s_point = gen_rand_obj(all_dots)  # Генерация второй тройки объектов
+        sec_s_point = gen_rand_obj(all_dots, 3)  # Генерация второй тройки объектов
         new_min, new_s_points = new_obj(all_dots, first_s_point, sec_s_point, pr)
         if new_min == pr:
             i = i + 1  # увиличеваем переменную, которая считает сколько раз нам выдали один и тот же ответ
@@ -170,13 +170,14 @@ if __name__ == '__main__':
             i = 0
             pr = new_min
             first_s_point = new_s_points
-        print(pr)
-        
+        j += 1
         if i == 10:  # Кол-во попыток найти элемент меньше/Внесение в список минимальных элементов
             final_list.append(pr)
-        if j == 100:  # ограничение по итерациям
+        if j == 50:  # ограничение по итерациям
             if pr not in final_list:
                 final_list.append(deepcopy(pr))
             print(final_list)
             break
-# 0.00012059920469122685, 0.0001780519359350554, 00011647178532747887
+# 0.00012059920469122685, 0.0001780519359350554, 0.00011647178532747887
+# 0.00010806844841518404  0.00010803597530276108
+# [0.00011148587642821461, 0.00010955847194149846, 0.00010857841449466461]
