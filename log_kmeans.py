@@ -1,7 +1,6 @@
 ﻿# coding: utf-8
 import random
 from copy import deepcopy
-from math import sqrt
 from typing import Tuple
 
 import numpy as np
@@ -49,11 +48,11 @@ class Dot:
         result = 0
         if self.m_type:
             for i in range(len(self.point)):
-                result = result + sqrt(pow(other.point[i] - self.point[i], 2))
+                result = result + abs(other.point[i] - self.point[i])
             return result
         else:
             for i in range(len(self.point)):
-                result = result + sqrt(pow(other.point[i], 2)) - sqrt(pow(self.point[i], 2))
+                result = result + abs(other.point[i]) - abs(self.point[i])
             return result
 
 
