@@ -52,8 +52,8 @@ class Dot:
             return result
         else:
             for i in range(len(self.point)):
-                result = result + abs(other.point[i]) - abs(self.point[i])
-            return result
+                result = result + pow(other.point[i] - self.point[i], 2)
+        return np.sqrt(result)
 
 
 class SpecialPoint:
