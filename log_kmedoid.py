@@ -154,7 +154,7 @@ def gen_rand_obj(dots: list, k_amount) -> SpecialPoint:
             return SpecialPoint([dots[i] for i in first])
 
 
-def k_medoid(k_amount: int = 3, iteration_constraint: int = 100, metryx_type: bool = False, file_path: str = None,
+def k_medoid(k_amount: int = 3, iteration_constraint: int = 50, metryx_type: bool = False, file_path: str = None,
              n_cof: float = None) -> Tuple[Union[np.ndarray, Any], Union[SpecialPoint, list]]:
     """
     
