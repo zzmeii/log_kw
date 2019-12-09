@@ -124,17 +124,19 @@ def new_obj(all_dots: list, first: SpecialPoint, sec: SpecialPoint, min_sum_now:
     :return: Минимальная сумма и наилучшее сочитание компонентов первого и второго объекта
     """
     sp_len = len(first)
-    test_list = []
+    temp_list = []
     
     for k in range(sp_len):
-        if random.random() < 0.5:
-            test_list.append(sec[k])
+        if random.random() < 0.5 and sec[k] not in temp_list:
+            temp_list.append(sec[k])
+        elif first[k] not in temp_list:
+            temp_list.append(first[k])
         else:
-            test_list.append(first[k])
-    new_sum = v_sum(all_dots, SpecialPoint(test_list))
+            temp_list.append(sec[k])
+    new_sum = v_sum(all_dots, SpecialPoint(temp_list))
     if new_sum < min_sum_now:
         min_sum_now = new_sum
-    return min_sum_now, test_list
+    return min_sum_now, temp_list
 
 
 def gen_rand_obj(dots: list, k_amount) -> SpecialPoint:
@@ -195,7 +197,7 @@ def k_medoid(k_amount: int = 3, iteration_constraint: int = 50, metryx_type: boo
 if __name__ == '__main__':
     colors = ['red', 'green', 'blue', 'black', 'orange', 'yellow']
     ax = plt.subplots(figsize=(10, 10))[1]
-    result = k_medoid(iteration_constraint=200, k_amount=3,
+    result = k_medoid(iteration_constraint=100, k_amount=3,
                       file_path='irisDataNoHeadDotComma.csv')  # чтобы использовать случайные значения нужно удалить "file_path='irisDataNoHeadDotComma.csv'"
     for i in result[0]:
         ax.scatter(i[0], i[1], color=colors[int(i.k_class)])
