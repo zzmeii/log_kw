@@ -14,7 +14,7 @@ class Dot:
     """
     Класс точки
     Содержит кординаты и данные об используемой метрике
-    TODO переделать
+    DONE переделать
     """
     
     def __init__(self, cords: list, m_type: bool):
@@ -26,6 +26,7 @@ class Dot:
         self.k_class = None
         self.point = np.array(cords.copy())
         self.m_type = m_type
+        self.medoid = False
     
     def __eq__(self, other) -> bool:
         """
@@ -91,7 +92,7 @@ class SpecialPoint:
     def __len__(self) -> int:
         """
         Пеоегрузка функции len()
-        :return:
+        :return: int
         """
         return len(self.spec_points)
     
@@ -101,7 +102,6 @@ class SpecialPoint:
 
 def v_sum(all_dots: list, special_dots: SpecialPoint) -> float:
     """
-    
     :type all_dots: list
     :param all_dots:
     :param special_dots:
@@ -156,12 +156,13 @@ def gen_rand_obj(dots: list, k_amount) -> SpecialPoint:
             return SpecialPoint([dots[i] for i in first])
 
 
-def k_medoid(k_amount: int = 3, iteration_constraint: int = 50, metryx_type: bool = False, file_path: str = None,
+
+def k_medoid(k_amount: int = 3, iteration_constraint: int = 300, metryx_type: bool = False, file_path: str = None,
              n_cof: float = None) -> Tuple[Union[np.ndarray, Any], Union[SpecialPoint, list]]:
     """
     
     :param k_amount: Кол-во медоидов
-    :param iteration_constraint: Кол-во итераций. По умолчанию 50
+    :param iteration_constraint: Кол-во итераций. По умолчанию 300
     :param metryx_type: Тип метрики, по умолчанию Евклидова
     :param file_path: Путь к файлу. При отсутствии срабатывают случайные значения
     :param n_cof: коофицент нормализации. Работает только при наличии пути файла
@@ -191,16 +192,21 @@ def k_medoid(k_amount: int = 3, iteration_constraint: int = 50, metryx_type: boo
                 k_class = first_s_point.index(k)
                 min_sum = i + k
         i.k_class = k_class
-    return deepcopy(data), deepcopy(first_s_point)
+    for i in first_s_point:
+        i.medoid = True
+    return deepcopy(data)
 
 
 if __name__ == '__main__':
+    
     colors = ['red', 'green', 'blue', 'black', 'orange', 'yellow']
     ax = plt.subplots(figsize=(10, 10))[1]
-    result = k_medoid(iteration_constraint=100, k_amount=3,
-                      file_path='irisDataNoHeadDotComma.csv')  # чтобы использовать случайные значения нужно удалить "file_path='irisDataNoHeadDotComma.csv'"
-    for i in result[0]:
-        ax.scatter(i[0], i[1], color=colors[int(i.k_class)])
-    for i in result[1]:
-        ax.scatter(i[0], i[1], color=colors[int(i.k_class)], lw=10, marker='^')
+    result = k_medoid(iteration_constraint=300, k_amount=3,
+                      file_path='v3.csv')  # чтобы использовать случайные значения нужно удалить "file_path='irisDataNoHeadDotComma.csv'"
+    for i in result:
+        if i.medoid:
+            ax.scatter(i[0], i[1], color=colors[int(i.k_class)], marker='^', lw=10)
+        else:
+            ax.scatter(i[0], i[1], color=colors[int(i.k_class)])
+    
     plt.show()
