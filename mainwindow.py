@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QApplication, QFileDialog
+from sklearn import datasets
 
 from log_kmedoid import k_medoid
 
@@ -100,15 +101,16 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
         self.b_choose.setEnabled(False)
-        
+        self.data = None
+
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        
+
         self.b_start.clicked.connect(self.start_knm)
         self.b_choose.clicked.connect(self.coose_youre_file)
         self.radioButton.toggled.connect(self.change_rb_data)
         self.b_show_T.clicked.connect(self.save_csv)
-    
+
     def change_rb_data(self):
         if not self.radioButton.isChecked():
             self.b_choose.setEnabled(False)
@@ -116,21 +118,28 @@ class Ui_MainWindow(object):
             self.t_way.setText('Файла нет')
         else:
             self.b_choose.setEnabled(True)
-            
+
     def save_csv(self):
-        
-        res = {i:[] for i in range(len(self.data)+1)}
+
+        res = {i: [] for i in range(len(self.data) + 1)}
         for i in self.data:
-            for k in range(len(res)-1):
+            for k in range(len(res) - 1):
                 res[k] = i[k]
             res[len(self.data)] = i.k_class
         pd.DataFrame(res).to_csv(str(datetime.now()))
 
     def start_knm(self):
-        
+
         n_cof = self.doubleSpinBox.value() if self.cb_norm.isChecked() else None
-        self.data = k_medoid(self.n_class.value(), int(self.k_classes.value()), self.metryx_m.isChecked(),
-                             self.file_path, n_cof)
+        data = pd.read_csv(self.file_path) if self.file_path else datasets.make_blobs(n_samples=500, n_features=2,
+                                                                                      centers=int(
+                                                                                          self.k_classes.value()),
+                                                                                      cluster_std=1,
+                                                                                      center_box=(-4, 4),
+                                                                                      shuffle=False, random_state=None)
+
+        self.data = k_medoid(self.data, self.n_class.value(),
+                             int(self.k_classes.value()), self.metryx_m.isChecked(), n_cof)
 
         if self.checkBox.isChecked() or self.checkBox_2.isChecked():
             ax = plt.subplots()[1]
@@ -143,7 +152,7 @@ class Ui_MainWindow(object):
                 plt.savefig('kmm_plot')
             if self.checkBox_2.isChecked():
                 plt.show()
-    
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle("log_kw_knm")
@@ -165,7 +174,7 @@ class Ui_MainWindow(object):
         self.checkBox_2.setText("Плказать график")
         self.DT_2.setText("Ко-оф:")
         self.DT_3.setText("Кол-во итераций")
-    
+
     def coose_youre_file(self):
         file_path = QFileDialog.getOpenFileName()
         self.file_path = file_path[0]
@@ -180,7 +189,7 @@ class mywindow(QtWidgets.QMainWindow):
 
 if __name__ == '__main__':
     import sys
-    
+
     app = QApplication(sys.argv)
     application = mywindow()
     application.show()

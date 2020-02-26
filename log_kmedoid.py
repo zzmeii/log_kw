@@ -6,6 +6,7 @@ from typing import Any, Tuple, Union
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from sklearn import metrics
 
 from norm import normal
 
@@ -16,7 +17,7 @@ class Dot:
     Содержит кординаты и данные об используемой метрике
     DONE переделать
     """
-    
+
     def __init__(self, cords: list, m_type: bool):
         """
         Принимаеи кординаты и bool, если True, то используется манхеттенская метрика, иначе, евклидова
@@ -27,7 +28,7 @@ class Dot:
         self.point = np.array(cords.copy())
         self.m_type = m_type
         self.medoid = False
-    
+
     def __eq__(self, other) -> bool:
         """
         Перегрузка эквиваленции
@@ -41,7 +42,7 @@ class Dot:
             else:
                 return False
         return True
-    
+
     def __add__(self, other) -> float:
         """
         Перегрузка сложения
@@ -58,7 +59,7 @@ class Dot:
             for i in range(len(self.point)):
                 result = result + pow(other.point[i] - self.point[i], 2)
         return np.sqrt(result)
-    
+
     def __getitem__(self, item: int) -> int:
         return self.point[item]
 
@@ -68,10 +69,10 @@ class SpecialPoint:
     Класс содержащий специальные точки.
     
     """
-    
+
     def __init__(self, point):
         self.spec_points = point.copy()
-    
+
     def __eq__(self, other) -> bool:
         """
        Перегрузка эквиваленции
@@ -88,34 +89,38 @@ class SpecialPoint:
             return True
         else:
             return False
-    
+
     def __len__(self) -> int:
         """
         Пеоегрузка функции len()
         :return: int
         """
         return len(self.spec_points)
-    
+
     def __getitem__(self, item: int) -> Dot:
         return self.spec_points[item]
 
 
-def v_sum(all_dots: list, special_dots: SpecialPoint) -> float:
+def v_sum(all_dots, special_dots: SpecialPoint) -> float:
     """
-    :type all_dots: list
+    :type all_dots
     :param all_dots:
     :param special_dots:
     :return:
     """
     result = 0
-    for i in special_dots.spec_points:
-        for k in all_dots:
-            if i != k:
-                result = result + (i + k)
+
+    for i in all_dots:
+        temp = []
+        if i not in special_dots.spec_points:
+            for k in special_dots.spec_points:
+                temp.append(i + k)
+            result = result + min(temp)
+
     return result
 
 
-def new_obj(all_dots: list, first: SpecialPoint, sec: SpecialPoint, min_sum_now: int) -> Tuple[int, list]:
+def new_obj(all_dots: np.ndarray, first: SpecialPoint, sec: SpecialPoint, min_sum_now: int) -> Tuple[int, list]:
     """
     :param min_sum_now: Минимальная сумма на начало прогона
     :param all_dots: Все точки
@@ -125,7 +130,7 @@ def new_obj(all_dots: list, first: SpecialPoint, sec: SpecialPoint, min_sum_now:
     """
     sp_len = len(first)
     temp_list = []
-    
+
     for k in range(sp_len):
         if random.random() < 0.5 and sec[k] not in temp_list:
             temp_list.append(sec[k])
@@ -139,7 +144,7 @@ def new_obj(all_dots: list, first: SpecialPoint, sec: SpecialPoint, min_sum_now:
     return min_sum_now, temp_list
 
 
-def gen_rand_obj(dots: list, k_amount) -> SpecialPoint:
+def gen_rand_obj(dots: np.ndarray, k_amount) -> SpecialPoint:
     """
     Генерирует объект на основе трех случайных точек
     DONE сделать универсальной для любого кол-ва точек
@@ -156,26 +161,21 @@ def gen_rand_obj(dots: list, k_amount) -> SpecialPoint:
             return SpecialPoint([dots[i] for i in first])
 
 
-
-def k_medoid(k_amount: int = 3, iteration_constraint: int = 300, metryx_type: bool = False, file_path: str = None,
-             n_cof: float = None) -> Tuple[Union[np.ndarray, Any], Union[SpecialPoint, list]]:
+def k_medoid(origin_data, k_amount: int = 3, iteration_constraint: int = 300, metrics_type: bool = False,
+             n_cof: float = None) -> np.ndarray:
     """
-    
+
+    :param origin_data: Уже предобработанные данные. Обязательный аргумент
     :param k_amount: Кол-во медоидов
     :param iteration_constraint: Кол-во итераций. По умолчанию 300
-    :param metryx_type: Тип метрики, по умолчанию Евклидова
-    :param file_path: Путь к файлу. При отсутствии срабатывают случайные значения
-    :param n_cof: коофицент нормализации. Работает только при наличии пути файла
+    :param metrics_type: Тип метрики, по умолчанию Евклидова
+    :param n_cof: коофицент нормализации.
     :return: массив точек с параметром k_class указывающий на пренадлежность к классу и массив медоидов
     """
-    if not file_path:
-        temp = np.random.randint(-100, 100, (1000, 2))
-        data = np.array([Dot(i, metryx_type) for i in temp])
-    else:
-        temp = np.array(pd.read_csv(file_path))
-        data = np.array([Dot(i, metryx_type) for i in temp])
-        if n_cof:
-            data = normal(data, n_cof)
+
+    temp = origin_data
+    data = np.array([Dot(i, metrics_type) for i in temp])
+
     first_s_point = gen_rand_obj(data, k_amount)  # Генерация первой тройки объектов
     pr = v_sum(data, first_s_point)
     for _ in range(iteration_constraint):
@@ -198,15 +198,21 @@ def k_medoid(k_amount: int = 3, iteration_constraint: int = 300, metryx_type: bo
 
 
 if __name__ == '__main__':
-    
+    from test import data
+
+    data = np.array(pd.read_csv('irisDataNoHeadDotComma.csv'))
     colors = ['red', 'green', 'blue', 'black', 'orange', 'yellow']
-    ax = plt.subplots(figsize=(10, 10))[1]
-    result = k_medoid(iteration_constraint=300, k_amount=3,
-                      file_path='v3.csv')  # чтобы использовать случайные значения нужно удалить "file_path='irisDataNoHeadDotComma.csv'"
+    ax = plt.subplots()[1]
+    result = k_medoid(data, iteration_constraint=600, k_amount=3, metrics_type=False)
     for i in result:
         if i.medoid:
             ax.scatter(i[0], i[1], color=colors[int(i.k_class)], marker='^', lw=10)
         else:
             ax.scatter(i[0], i[1], color=colors[int(i.k_class)])
-    
+
     plt.show()
+    labels_true = [i.k_class for i in result]
+    labels_pred = []
+    for i in np.array(pd.read_csv('irisDataNoHeadCommaSemititles.csv')):
+        labels_pred.append(i[4])
+    print(metrics.adjusted_rand_score(labels_true, labels_pred))
