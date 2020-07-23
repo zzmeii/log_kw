@@ -1,14 +1,9 @@
-﻿# coding: utf-8
-import random
-from copy import deepcopy
-from typing import Any, Tuple, Union
+﻿import random
+from typing import Tuple, List
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from sklearn import metrics
-
-from norm import normal
 
 
 class Dot:
@@ -161,8 +156,17 @@ def gen_rand_obj(dots: np.ndarray, k_amount) -> SpecialPoint:
             return SpecialPoint([dots[i] for i in first])
 
 
+def convert_to_table(initial):
+    res = [[], [], []]
+    for i in initial:
+        res[0].append(list(i.point))
+        res[1].append(i.k_class)
+        res[2].append(i.medoid)
+    return res
+
+
 def k_medoid(origin_data, k_amount: int = 3, iteration_constraint: int = 300, metrics_type: bool = False,
-             n_cof: float = None) -> np.ndarray:
+             n_cof: float = None) -> List[list]:
     """
 
     :param origin_data: Уже предобработанные данные. Обязательный аргумент
@@ -194,25 +198,15 @@ def k_medoid(origin_data, k_amount: int = 3, iteration_constraint: int = 300, me
         i.k_class = k_class
     for i in first_s_point:
         i.medoid = True
-    return deepcopy(data)
+    return convert_to_table(data)
 
 
 if __name__ == '__main__':
-    from test import data
-
-    data = np.array(pd.read_csv('irisDataNoHeadDotComma.csv'))
+    data = np.array(pd.read_csv('irisDataNoHeadDotComma.csv', header=None))
     colors = ['red', 'green', 'blue', 'black', 'orange', 'yellow']
     ax = plt.subplots()[1]
     result = k_medoid(data, iteration_constraint=600, k_amount=3, metrics_type=False)
-    for i in result:
-        if i.medoid:
-            ax.scatter(i[0], i[1], color=colors[int(i.k_class)], marker='^', lw=10)
-        else:
-            ax.scatter(i[0], i[1], color=colors[int(i.k_class)])
-
+    print(result)
+    for i in range(len(result[1])):
+        ax.scatter(result[0][i][0], result[0][i][1], color=colors[result[1][i]])
     plt.show()
-    labels_true = [i.k_class for i in result]
-    labels_pred = []
-    for i in np.array(pd.read_csv('irisDataNoHeadCommaSemititles.csv')):
-        labels_pred.append(i[4])
-    print(metrics.adjusted_rand_score(labels_true, labels_pred))

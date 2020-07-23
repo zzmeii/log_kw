@@ -111,9 +111,10 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import pandas as pd
 
-    data = datasets.make_blobs(n_samples=100, n_features=2, centers=4, cluster_std=1, center_box=(-4, 4),
+    data = datasets.make_blobs(n_samples=500, n_features=2, centers=4, cluster_std=1.7,
                                shuffle=False, random_state=None)
     colors = ['red', 'green', 'blue', 'black', 'orange', 'yellow']
+
     ax = plt.subplots()[1]
     for i in range(len(data[0])):
         ax.scatter(data[0][i][0], data[0][i][1], color=colors[data[1][i]])
