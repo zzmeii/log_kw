@@ -111,11 +111,32 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import pandas as pd
 
-    data = datasets.make_blobs(n_samples=500, n_features=2, centers=4, cluster_std=1.7,
-                               shuffle=False, random_state=None)
-    colors = ['red', 'green', 'blue', 'black', 'orange', 'yellow']
-
-    ax = plt.subplots()[1]
+    # data = datasets.make_blobs(n_samples=500, n_features=4, centers=4, cluster_std=2,
+    #                            shuffle=False, random_state=None)
+    # colors = ['red', 'green', 'blue', 'black', 'orange', 'yellow']
+    #
+    # ax = plt.subplots()[1]
+    # for i in range(len(data[0])):
+    #     ax.scatter(data[0][i][0], data[0][i][1], color=colors[data[1][i]])
+    # plt.show()
+    # del plt
+    # import matplotlib.pyplot as plt
+    #
+    # ax = plt.subplots()[1]
+    # for i in range(len(data[0])):
+    #     ax.scatter(data[0][i][3], data[0][i][2], color=colors[data[1][i]])
+    # plt.show()
+    # del plt
+    # import matplotlib.pyplot as plt
+    #
+    # ax = plt.subplots()[1]
+    #
+    # for i in range(len(data[0])):
+    #     ax.scatter(data[0][i][2], data[0][i][1], color=colors[data[1][i]])
+    # plt.show()
+    # from silhouette import k_calassters
+    #
+    # print(k_calassters(data[0], k_max=5))
     for i in range(len(data[0])):
-        ax.scatter(data[0][i][0], data[0][i][1], color=colors[data[1][i]])
+        plt.scatter(data[0][i][0], data[0][i][1], color='b')
     plt.show()

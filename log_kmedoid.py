@@ -1,6 +1,7 @@
 ﻿import random
-from typing import Tuple, List
+from typing import Tuple, List, Union
 
+from test import data
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -156,7 +157,7 @@ def gen_rand_obj(dots: np.ndarray, k_amount) -> SpecialPoint:
             return SpecialPoint([dots[i] for i in first])
 
 
-def convert_to_table(initial):
+def convert_to_table(initial) -> List[list]:
     res = [[], [], []]
     for i in initial:
         res[0].append(list(i.point))
@@ -166,14 +167,14 @@ def convert_to_table(initial):
 
 
 def k_medoid(origin_data, k_amount: int = 3, iteration_constraint: int = 300, metrics_type: bool = False,
-             n_cof: float = None) -> List[list]:
+             ret_table=True) -> Union[List[list], np.ndarray]:
     """
 
+    :param ret_table: Возвращает массив
     :param origin_data: Уже предобработанные данные. Обязательный аргумент
     :param k_amount: Кол-во медоидов
     :param iteration_constraint: Кол-во итераций. По умолчанию 300
     :param metrics_type: Тип метрики, по умолчанию Евклидова
-    :param n_cof: коофицент нормализации.
     :return: массив точек с параметром k_class указывающий на пренадлежность к классу и массив медоидов
     """
 
@@ -198,14 +199,14 @@ def k_medoid(origin_data, k_amount: int = 3, iteration_constraint: int = 300, me
         i.k_class = k_class
     for i in first_s_point:
         i.medoid = True
-    return convert_to_table(data)
+    return convert_to_table(data) if ret_table else data
 
 
 if __name__ == '__main__':
-    data = np.array(pd.read_csv('irisDataNoHeadDotComma.csv', header=None))
+    # data = np.array(pd.read_csv('irisDataNoHeadDotComma.csv', header=None))
     colors = ['red', 'green', 'blue', 'black', 'orange', 'yellow']
     ax = plt.subplots()[1]
-    result = k_medoid(data, iteration_constraint=600, k_amount=3, metrics_type=False)
+    result = k_medoid(data[0], iteration_constraint=300, k_amount=3, metrics_type=False)
     print(result)
     for i in range(len(result[1])):
         ax.scatter(result[0][i][0], result[0][i][1], color=colors[result[1][i]])

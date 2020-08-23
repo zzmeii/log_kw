@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 from numpy import genfromtxt
 from sklearn import datasets
 
+
 from log_kmedoid import k_medoid
 
 
@@ -61,30 +62,15 @@ class Ui_MainWindow(object):
         self.b_save_csv.setGeometry(QtCore.QRect(100, 80, 61, 23))
         self.b_save_csv.setObjectName("b_show_T")
         self.b_save_csv.setEnabled(False)
-        self.Status = QtWidgets.QLabel(self.centralwidget)
-        self.Status.setGeometry(QtCore.QRect(540, 100, 81, 16))
-        self.Status.setObjectName("Status")
         self.groupBox_3 = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_3.setGeometry(QtCore.QRect(337, 0, 151, 121))
         self.groupBox_3.setObjectName("groupBox_3")
         self.cb_save_graf = QtWidgets.QCheckBox(self.groupBox_3)
         self.cb_save_graf.setGeometry(QtCore.QRect(10, 40, 121, 17))
         self.cb_save_graf.setObjectName("checkBox")
-        self.cb_norm = QtWidgets.QCheckBox(self.groupBox_3)
-        self.cb_norm.setGeometry(QtCore.QRect(10, 60, 101, 17))
-        self.cb_norm.setObjectName("cb_norm")
         self.cb_show_graf = QtWidgets.QCheckBox(self.groupBox_3)
         self.cb_show_graf.setGeometry(QtCore.QRect(10, 20, 121, 17))
         self.cb_show_graf.setObjectName("checkBox_2")
-        self.norm_cof = QtWidgets.QDoubleSpinBox(self.groupBox_3)
-        self.norm_cof.setGeometry(QtCore.QRect(80, 80, 62, 22))
-        self.norm_cof.setMinimum(0.1)
-        self.norm_cof.setMaximum(1.0)
-        self.norm_cof.setProperty("value", 0.1)
-        self.norm_cof.setObjectName("norm_cof")
-        self.DT_2 = QtWidgets.QLabel(self.groupBox_3)
-        self.DT_2.setGeometry(QtCore.QRect(10, 80, 61, 20))
-        self.DT_2.setObjectName("DT_2")
         self.DT_3 = QtWidgets.QLabel(self.centralwidget)
         self.DT_3.setGeometry(QtCore.QRect(150, 40, 121, 20))
         self.DT_3.setObjectName("DT_3")
@@ -98,9 +84,6 @@ class Ui_MainWindow(object):
         self.menubar.setGeometry(QtCore.QRect(0, 0, 635, 21))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
         self.b_choose.setEnabled(False)
         self.data = None
 
@@ -121,7 +104,7 @@ class Ui_MainWindow(object):
             self.b_choose.setEnabled(True)
 
     def save_csv(self):
-
+        result_name = QFileDialog.getSaveFileName(None, "Сохранить файл", "", '*.csv')
         res = {i: [] for i in range(len(self.res_data[0][1]))}
         res.update({'class': []})
         for k in range(len(self.res_data[0])):
@@ -130,23 +113,20 @@ class Ui_MainWindow(object):
 
             res['class'].append(self.res_data[1][k])
 
-        pd.DataFrame(res).to_csv(r'LastResult.csv')
+        pd.DataFrame(res).to_csv(result_name[0])
 
     def start_knm(self):
-        self.Status.setText("Активно")
-        n_cof = self.norm_cof.value() if self.cb_norm.isChecked() else None
+
         if self.file_path:
             self.data = genfromtxt(self.file_path, delimiter=',')
         else:
             self.data, k_sours = datasets.make_blobs(
-                n_samples=self.n_class.value() * 200, n_features=self.n_class.value(),
-                centers=int(
-                    self.n_iterations.value()),
-                cluster_std=1,
+                n_samples=500, n_features=2, centers=self.n_class.value(), cluster_std=2,
+                center_box=(-4, 4),
                 shuffle=False, random_state=None)
 
         self.res_data = k_medoid(self.data, self.n_class.value(),
-                                 int(self.n_iterations.value()), self.metryx_m.isChecked(), n_cof)
+                                 int(self.n_iterations.value()), self.metryx_m.isChecked())
 
         if self.cb_save_graf.isChecked() or self.cb_show_graf.isChecked():
             ax = plt.subplots()[1]
@@ -157,10 +137,10 @@ class Ui_MainWindow(object):
                 else:
                     ax.scatter(self.res_data[0][i][0], self.res_data[0][i][1], color=self.colors[self.res_data[1][i]])
             if self.cb_save_graf.isChecked():
-                plt.savefig('kmm_plot')
+                result_name = QFileDialog.getSaveFileName(None, "Сохранить файл", "", '*.png')[0]
+                plt.savefig(result_name)
             if self.cb_show_graf.isChecked():
                 plt.show()
-        self.Status.setText("Не активно")
         self.b_save_csv.setEnabled(True)
 
     def retranslateUi(self, MainWindow):
@@ -177,12 +157,9 @@ class Ui_MainWindow(object):
         self.t_way.setText("Файла нет")
         self.DT_1.setText("Кол-во класстеров:")
         self.b_save_csv.setText("Сохранить")
-        self.Status.setText("Не активно")
         self.groupBox_3.setTitle("Дополнительно")
         self.cb_save_graf.setText("Сохранить график")
-        self.cb_norm.setText("Нормализация")
         self.cb_show_graf.setText("Плказать график")
-        self.DT_2.setText("Ко-оф:")
         self.DT_3.setText("Кол-во итераций")
 
     def coose_youre_file(self):
