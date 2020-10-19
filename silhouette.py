@@ -47,4 +47,5 @@ if __name__ == '__main__':
     ax = plt.subplots()[1]
     result = k_calassters(data)
 
+
     print(result)

@@ -14,7 +14,7 @@ class Dot:
     DONE переделать
     """
 
-    def __init__(self, cords: list, m_type: bool):
+    def __init__(self, cords: list, m_type: bool = True):
         """
         Принимаеи кординаты и bool, если True, то используется манхеттенская метрика, иначе, евклидова
         :param cords:
