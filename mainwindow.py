@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import QApplication, QFileDialog
 from numpy import genfromtxt
 from sklearn import datasets
 
-
 from log_kmedoid import k_medoid
 
 
@@ -116,14 +115,12 @@ class Ui_MainWindow(object):
         pd.DataFrame(res).to_csv(result_name[0])
 
     def start_knm(self):
-
+        self.b_start.text()
         if self.file_path:
             self.data = genfromtxt(self.file_path, delimiter=',')
         else:
-            self.data, k_sours = datasets.make_blobs(
-                n_samples=500, n_features=2, centers=self.n_class.value(), cluster_std=2,
-                center_box=(-4, 4),
-                shuffle=False, random_state=None)
+            self.data, k_sours = datasets.make_blobs(n_samples=500, n_features=2, centers=self.n_class.value(),
+                                                     cluster_std=2, shuffle=False, random_state=None)
 
         self.res_data = k_medoid(self.data, self.n_class.value(),
                                  int(self.n_iterations.value()), self.metryx_m.isChecked())
@@ -155,12 +152,12 @@ class Ui_MainWindow(object):
         self.radioButton.setText("Пользовательские")
         self.radioButton_2.setText("Случайные")
         self.t_way.setText("Файла нет")
-        self.DT_1.setText("Кол-во класстеров:")
+        self.DT_1.setText("Кол-во кластеров:")
         self.b_save_csv.setText("Сохранить")
         self.groupBox_3.setTitle("Дополнительно")
         self.cb_save_graf.setText("Сохранить график")
-        self.cb_show_graf.setText("Плказать график")
-        self.DT_3.setText("Кол-во итераций")
+        self.cb_show_graf.setText("Показать график")
+        self.DT_3.setText("Кол-во итераций:")
 
     def coose_youre_file(self):
         file_path = QFileDialog.getOpenFileName()

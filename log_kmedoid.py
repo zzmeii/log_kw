@@ -1,37 +1,23 @@
 ﻿import random
 from typing import Tuple, List, Union
 
-from test import data
+# from test import data
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
 
 class Dot:
-    """
-    Класс точки
-    Содержит кординаты и данные об используемой метрике
-    DONE переделать
-    """
 
-    def __init__(self, cords: list, m_type: bool = True):
-        """
-        Принимаеи кординаты и bool, если True, то используется манхеттенская метрика, иначе, евклидова
-        :param cords:
-        :param m_type:
-        """
-        self.k_class = None
+    def __init__(self, cords: list, m_type: bool, k_class: int = None):
+
+        self.k_class = k_class
         self.point = np.array(cords.copy())
         self.m_type = m_type
         self.medoid = False
 
     def __eq__(self, other) -> bool:
-        """
-        Перегрузка эквиваленции
-        
-        :param other:
-        :return:
-        """
+
         for i in range(len(self.point)):
             if self.point[i] == other.point[i]:
                 pass
@@ -40,12 +26,7 @@ class Dot:
         return True
 
     def __add__(self, other) -> float:
-        """
-        Перегрузка сложения
-        
-        :param other:
-        :return:
-        """
+
         result = 0
         if self.m_type:
             for i in range(len(self.point)):
@@ -60,70 +41,45 @@ class Dot:
         return self.point[item]
 
 
-class SpecialPoint:
-    """
-    Класс содержащий специальные точки.
-    
-    """
+class Centroids:
 
     def __init__(self, point):
-        self.spec_points = point.copy()
+        self.centroids = point.copy()
 
     def __eq__(self, other) -> bool:
-        """
-       Перегрузка эквиваленции
 
-       :param other:
-       :return:
-        """
         m = 0
-        for i in self.spec_points:
-            for k in other.spec_points:
+        for i in self.centroids:
+            for k in other.centroids:
                 if i == k:
                     m += 1
-        if m < len(self.spec_points):
+        if m < len(self.centroids):
             return True
         else:
             return False
 
     def __len__(self) -> int:
-        """
-        Пеоегрузка функции len()
-        :return: int
-        """
-        return len(self.spec_points)
+
+        return len(self.centroids)
 
     def __getitem__(self, item: int) -> Dot:
-        return self.spec_points[item]
+        return self.centroids[item]
 
 
-def v_sum(all_dots, special_dots: SpecialPoint) -> float:
-    """
-    :type all_dots
-    :param all_dots:
-    :param special_dots:
-    :return:
-    """
+def v_sum(all_dots, centroids: Centroids) -> float:
     result = 0
 
     for i in all_dots:
         temp = []
-        if i not in special_dots.spec_points:
-            for k in special_dots.spec_points:
+        if i not in centroids.centroids:
+            for k in centroids.centroids:
                 temp.append(i + k)
             result = result + min(temp)
 
     return result
 
 
-def new_obj(all_dots: np.ndarray, first: SpecialPoint, sec: SpecialPoint, min_sum_now: int) -> Tuple[int, list]:
-    """
-    :param min_sum_now: Минимальная сумма на начало прогона
-    :param all_dots: Все точки
-    :param first: Первый объект
-    :param sec: Второй объект
-    :return: Минимальная сумма и наилучшее сочитание компонентов первого и второго объекта
-    """
+def new_min_centers(all_dots: np.ndarray, first: Centroids, sec: Centroids, min_sum_now: int) -> Tuple[int, list]:
     sp_len = len(first)
     temp_list = []
 
@@ -134,27 +90,20 @@ def new_obj(all_dots: np.ndarray, first: SpecialPoint, sec: SpecialPoint, min_su
             temp_list.append(first[k])
         else:
             temp_list.append(sec[k])
-    new_sum = v_sum(all_dots, SpecialPoint(temp_list))
+    new_sum = v_sum(all_dots, Centroids(temp_list))
     if new_sum < min_sum_now:
         min_sum_now = new_sum
     return min_sum_now, temp_list
 
 
-def gen_rand_obj(dots: np.ndarray, k_amount) -> SpecialPoint:
-    """
-    Генерирует объект на основе трех случайных точек
-    DONE сделать универсальной для любого кол-ва точек
-    :param k_amount: Необходимое количество специальных точек
-    :param dots: Все точки
-    :return:
-    """
+def gen_rand_center(dots: np.ndarray, k_amount) -> Centroids:
     first = []
     while True:
         point = random.randint(0, len(dots) - 1)
         if point not in first:
             first.append(point)
         if len(first) == k_amount:
-            return SpecialPoint([dots[i] for i in first])
+            return Centroids([dots[i] for i in first])
 
 
 def convert_to_table(initial) -> List[list]:
@@ -168,24 +117,14 @@ def convert_to_table(initial) -> List[list]:
 
 def k_medoid(origin_data, k_amount: int = 3, iteration_constraint: int = 300, metrics_type: bool = False,
              ret_table=True) -> Union[List[list], np.ndarray]:
-    """
-
-    :param ret_table: Возвращает массив
-    :param origin_data: Уже предобработанные данные. Обязательный аргумент
-    :param k_amount: Кол-во медоидов
-    :param iteration_constraint: Кол-во итераций. По умолчанию 300
-    :param metrics_type: Тип метрики, по умолчанию Евклидова
-    :return: массив точек с параметром k_class указывающий на пренадлежность к классу и массив медоидов
-    """
-
     temp = origin_data
     data = np.array([Dot(i, metrics_type) for i in temp])
 
-    first_s_point = gen_rand_obj(data, k_amount)  # Генерация первой тройки объектов
+    first_s_point = gen_rand_center(data, k_amount)  # Генерация первой тройки объектов
     pr = v_sum(data, first_s_point)
     for _ in range(iteration_constraint):
-        sec_s_point = gen_rand_obj(data, k_amount)  # Генерация второй тройки объектов
-        new_min, new_s_points = new_obj(data, first_s_point, sec_s_point, pr)
+        sec_s_point = gen_rand_center(data, k_amount)  # Генерация второй тройки объектов
+        new_min, new_s_points = new_min_centers(data, first_s_point, sec_s_point, pr)
         if new_min != pr:
             pr = new_min
             first_s_point = new_s_points
@@ -203,7 +142,7 @@ def k_medoid(origin_data, k_amount: int = 3, iteration_constraint: int = 300, me
 
 
 if __name__ == '__main__':
-    # data = np.array(pd.read_csv('irisDataNoHeadDotComma.csv', header=None))
+    data = np.array(pd.read_csv('irisDataNoHeadDotComma.csv', header=None))
     colors = ['red', 'green', 'blue', 'black', 'orange', 'yellow']
     ax = plt.subplots()[1]
     result = k_medoid(data[0], iteration_constraint=300, k_amount=3, metrics_type=False)

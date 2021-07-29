@@ -1,4 +1,7 @@
 from numpy import array
+from pandas import DataFrame, read_csv
+
+from log_kmedoid import k_medoid
 
 data = (array([[5.13130363e-02, -3.15093549e+00],
                [-1.20967869e+00, -2.02329514e+00],
@@ -109,34 +112,23 @@ data = (array([[5.13130363e-02, -3.15093549e+00],
 if __name__ == '__main__':
     from sklearn import datasets
     import matplotlib.pyplot as plt
-    import pandas as pd
+    from rand_index import rand_index
 
-    # data = datasets.make_blobs(n_samples=500, n_features=4, centers=4, cluster_std=2,
+    # data = datasets.make_blobs(n_samples=350, n_features=3, centers=5, cluster_std=2,
     #                            shuffle=False, random_state=None)
+    #
     # colors = ['red', 'green', 'blue', 'black', 'orange', 'yellow']
-    #
-    # ax = plt.subplots()[1]
     # for i in range(len(data[0])):
-    #     ax.scatter(data[0][i][0], data[0][i][1], color=colors[data[1][i]])
+    #     plt.scatter(data[0][i][0], data[0][i][1], color=colors[data[1][i]])
     # plt.show()
-    # del plt
-    # import matplotlib.pyplot as plt
     #
-    # ax = plt.subplots()[1]
-    # for i in range(len(data[0])):
-    #     ax.scatter(data[0][i][3], data[0][i][2], color=colors[data[1][i]])
-    # plt.show()
-    # del plt
-    # import matplotlib.pyplot as plt
+    # result = k_medoid(data[0], iteration_constraint=300, k_amount=3, metrics_type=False)
     #
-    # ax = plt.subplots()[1]
-    #
-    # for i in range(len(data[0])):
-    #     ax.scatter(data[0][i][2], data[0][i][1], color=colors[data[1][i]])
-    # plt.show()
-    # from silhouette import k_calassters
-    #
-    # print(k_calassters(data[0], k_max=5))
-    for i in range(len(data[0])):
-        plt.scatter(data[0][i][0], data[0][i][1], color='b')
-    plt.show()
+    # ri =f'{round(rand_index([result[1]], data[1]), 3)*100}%'
+    # trans = data[0].transpose()
+    # tt = [i for i in trans]
+    # tt.extend([data[1]])
+
+    # DataFrame(tt).transpose().to_csv("tests\\6.csv")
+    x = read_csv("tests\\6.csv")
+    x.transpose().to_csv("tests\\6.csv")

@@ -6,6 +6,13 @@ from log_kmedoid import k_medoid
 
 
 def k_calassters(data, k_min=2, k_max=10):
+    """
+    Метод локтя.
+    :param data:
+    :param k_min:
+    :param k_max:
+    :return:
+    """
     res = {i: 0 for i in range(k_min, k_max)}
     for i in range(k_min, k_max):
         res_km = k_medoid(data, iteration_constraint=300, k_amount=i, metrics_type=False, ret_table=False)
