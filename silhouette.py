@@ -15,19 +15,23 @@ def k_calassters(data, k_min=2, k_max=10):
     """
     res = {i: 0 for i in range(k_min, k_max)}
     for i in range(k_min, k_max):
-        res_km = k_medoid(data, iteration_constraint=300, k_amount=i, metrics_type=False, ret_table=False)
-        medoids = []
-        len_class = []
-        for k in range(i):
-            temp = 0
-            for j in res_km:
-                if j.k_class == k:
-                    temp += 1
-            len_class.append(temp)
+        if k_min != 1:
+            res_km = k_medoid(data, iteration_constraint=300, k_amount=i, metrics_type=False, ret_table=False)
+            medoids = []
+            len_class = []
+            for k in range(i):
+                temp = 0
+                for j in res_km:
+                    if j.k_class == k:
+                        temp += 1
+                len_class.append(temp)
 
-        for k in res_km:
-            if k.medoid:
-                medoids.append(k)
+            for k in res_km:
+                if k.medoid:
+                    medoids.append(k)
+        else:
+            pass
+        # Написать
         for k in res_km:
             temp = {}
             for j in res_km:
