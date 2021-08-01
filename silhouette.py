@@ -5,7 +5,7 @@ import pandas as pd
 from log_kmedoid import k_medoid, Dot
 
 
-def k_calassters(data, k_min=2, k_max=10):
+def elbow_method(data, k_min=2, k_max=10):
     """
     Метод локтя.
     :param data:
@@ -50,6 +50,6 @@ if __name__ == '__main__':
     data = np.array(pd.read_csv('irisDataNoHeadDotComma.csv', header=None))
     colors = ['red', 'green', 'blue', 'black', 'orange', 'yellow']
     ax = plt.subplots()[1]
-    result = k_calassters(data)
+    result = elbow_method(data)
 
     print(result)
