@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from log_kmedoid import k_medoid
+from log_kmedoid import k_medoid, Dot
 
 
 def k_calassters(data, k_min=2, k_max=10):
@@ -15,23 +15,17 @@ def k_calassters(data, k_min=2, k_max=10):
     """
     res = {i: 0 for i in range(k_min, k_max)}
     for i in range(k_min, k_max):
-        if k_min != 1:
-            res_km = k_medoid(data, iteration_constraint=300, k_amount=i, metrics_type=False, ret_table=False)
-            medoids = []
-            len_class = []
-            for k in range(i):
-                temp = 0
-                for j in res_km:
-                    if j.k_class == k:
-                        temp += 1
-                len_class.append(temp)
 
-            for k in res_km:
-                if k.medoid:
-                    medoids.append(k)
-        else:
-            pass
-        # Написать
+        len_class = []
+
+        res_km = k_medoid(data, iteration_constraint=300, k_amount=i, metrics_type=False, ret_table=False)
+        for k in range(i):
+            temp = 0
+            for j in res_km:
+                if j.k_class == k:
+                    temp += 1
+            len_class.append(temp)
+
         for k in res_km:
             temp = {}
             for j in res_km:
@@ -57,6 +51,5 @@ if __name__ == '__main__':
     colors = ['red', 'green', 'blue', 'black', 'orange', 'yellow']
     ax = plt.subplots()[1]
     result = k_calassters(data)
-
 
     print(result)
